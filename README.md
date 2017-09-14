@@ -11,3 +11,6 @@ A quick and dirty script to translate the [WeChat Developer Tools](https://mp.we
 
 ## Windows 
 `python generate.py --nwdir="c:\program files\tencent\devtools\package.nw" --key=apikey-from-google`
+
+# Pre-translated version
+* windows64 - 1.01.170913 - [download]()
