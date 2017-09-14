@@ -28,4 +28,4 @@ Extract the directory. Then run the executable.
 * [Optional] Get a Google Cloud API Key if you don't want to use the translations in `translations.json`
 
 ## Windows 
-`python generate.py --nwdir="c:\program files\tencent\devtools\package.nw" --key=apikey-from-google`
+`python generate.py --nwdir="c:\program files\tencent\devtools\package.nw" --key=YOUR-APIKEY-FROM-GOOGLE`
