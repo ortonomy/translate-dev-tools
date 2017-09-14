@@ -1,10 +1,25 @@
-# translate-dev-tools
+# Translating Tencent's WeChat Developer Tools
 A quick and dirty script to translate the [WeChat Developer Tools](https://mp.weixin.qq.com/debug/wxadoc/dev/devtools/download.html) into English (or any other language)
 
 ![Splash screen](img/splash.png?raw=true "English WeChat Developer Tools")
 ![Main screen](img/main.png?raw=true "English WeChat Developer Tools")
 
-# How to use
+
+# Download
+
+## package.nw
+Extract the `package.nw` directory and merge it with the one in the WeChat DevTools installation directory.
+
+* [1.01.170913](releases/package.nw.1.01.170913.zip)
+
+## Pre-translated Entire Installation 
+Extract and run the executable.
+
+* [windows64 - 1.01.170913](releases/win64_1.01.170913.zip)
+
+# Run the Translation script yourself
+
+## How to use
 
 * Set the permissions so that you are able to write to the `package.nw` directory within the WeChat Developer Tools installation directory.
 
@@ -14,6 +29,3 @@ A quick and dirty script to translate the [WeChat Developer Tools](https://mp.we
 
 ## Windows 
 `python generate.py --nwdir="c:\program files\tencent\devtools\package.nw" --key=apikey-from-google`
-
-# Pre-translated version
-* windows64 - 1.01.170913 - [download](releases/win64_1.01.170913.zip)
