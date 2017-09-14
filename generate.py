@@ -253,6 +253,40 @@ def listJsFilesWithChinese(rootpath):
 
 
 
+
+def translateDictionary(translationCache, translator, zhDict, newLanguage='en', threshold=0.3):
+    translatedDict = {}
+    toTranslate = []
+    for (key, value) in zhDict.items():
+        if isinstance(value, str) and chineseRatio(value)>threshold:
+            if key.strip()=='' or value.strip()=='':
+                continue
+            # make sure it is mostly chinese
+            if translationCache.get(zhDict[key])!=None:
+                translatedDict[key] = translationCache.get(zhDict[key])
+            else:
+                # We will ask google to translate
+                toTranslate.append((key, zhDict[key]))
+        elif isinstance(value, dict):
+            translatedDict[key] = translateDictionary(translationCache, translator, value, newLanguage, threshold)
+        else:
+            translatedDict[key] = value
+    # Do we need to ask Google to translate some things ?
+    if toTranslate!=[]:
+        translated = translator.translateList([x[1] for x in toTranslate], newLanguage)
+        if len(translated)!=len(toTranslate):
+            raise Exception("translateList should return same size list as input!")
+        # add to the dictionary
+        for x in range(0, len(toTranslate)):
+            translatedDict[toTranslate[x][0]] = translated[x]
+            # add to the cache
+            translationCache.put(toTranslate[x][1], translated[x])
+        translationCache.save()
+    return translatedDict
+
+
+
+
 def changeHardcodedLocale(rootpath, newLanguage='en'):
     """Fix the hardcoded locale.
     The developers have started to think about locales. But they hardcoded 'zh' as the current one
@@ -268,43 +302,15 @@ def changeMonacoLanguage(rootpath, newLanguage='en'):
     fileSearchReplace(os.path.join(rootpath, 'html/editor.html'), 'zh-cn', newLanguage)
     fileSearchReplace(os.path.join(rootpath, 'html/editor-dev.html'), 'zh-cn', newLanguage)
 
-def _generateLocaleStrings(translationCache, translator, rootpath, newLanguage='en'):
-    """ This is a very badly coded function! Messy AF """
-    # ensure directories exist
-    if not os.path.exists(os.path.join(rootpath, 'js/common/locales/'+newLanguage)):
-        os.makedirs(os.path.join(rootpath, 'js/common/locales/'+newLanguage))
-    if not os.path.exists(os.path.join(rootpath, 'js/common/locales/src/'+newLanguage)):
-        os.makedirs(os.path.join(rootpath, 'js/common/locales/src/'+newLanguage))
-    # do the translation work for both dict objects
-    d = parseAsDict(os.path.join(rootpath, 'js/common/locales/zh/index.js'))
-    d2 = parseAsDict(os.path.join(rootpath, 'js/common/locales/src/zh/index.js'))
-    translated = {}
-    translated2 = {}
-    for (key, value) in d.items():
-        if translationCache.get(key)!=None:
-            translated[key] = translationCache.get(key)
-    for (key, value) in d2.items():
-        if translationCache.get(key)!=None:
-            translated2[key] = translationCache.get(key)
-    # removes item from dictionary as we dont need to translate it anymore
-    for key in translated.keys():
-        d.pop(key, None)
-    for key in translated2.keys():
-        d2.pop(key, None)        
-    # Ask Google to translate any remaining ones
-    if len(d)>0:
-        translated.update(translator.translateDict(d, newLanguage))
-    if len(d2)>0:
-        translated2.update(translator.translateDict(d2, newLanguage))
-    # save the cache
-    for (key, value) in translated.items():
-        translationCache.put(d[key], value)
-    for (key, value) in translated2.items():
-        translationCache.put(d2[key], value)
-    translationCache.save()
-    # save the new dictionaries as JS objects
-    saveDictAsJsObject(os.path.join(rootpath, 'js/common/locales/'+newLanguage+'/index.js'), translated)
-    saveDictAsJsObject(os.path.join(rootpath, 'js/common/locales/src/'+newLanguage+'/index.js'), translated2)
+
+def translatePackageJson(translationCache, translator, rootpath, newLanguage='en'):
+    # Main package.json
+    filepath = os.path.join(rootpath, 'package.json')
+    with open(filepath, 'r', encoding="utf-8") as f:
+        packageDict = json.load(f)    
+    translatedDict = translateDictionary(translationCache, translator, packageDict, newLanguage)
+    with open(filepath, 'w', encoding="utf-8") as f:
+        json.dump(translatedDict, f)
 
 
 def generateLocaleStrings(translationCache, translator, rootpath, newLanguage='en'):
@@ -314,27 +320,7 @@ def generateLocaleStrings(translationCache, translator, rootpath, newLanguage='e
         os.makedirs(os.path.join(rootpath, 'js/common/locales/'+newLanguage))
     # do the translation work for both dict objects
     zhDict = parseAsDict(os.path.join(rootpath, 'js/common/locales/zh/index.js'))
-    translatedDict = {}
-    toTranslate = []
-    for (key, value) in zhDict.items():
-        if key.strip()=='' or value.strip()=='':
-            continue
-        if translationCache.get(zhDict[key])!=None:
-            translatedDict[key] = translationCache.get(zhDict[key])
-        else:
-            # We will ask google to translate
-            toTranslate.append((key, zhDict[key]))
-    # Do we need to ask Google to translate some things ?
-    if toTranslate!=[]:
-        translated = translator.translateList([x[1] for x in toTranslate], newLanguage)
-        if len(translated)!=len(toTranslate):
-            raise Exception("translateList should return same size list as input!")
-        # add to the dictionary
-        for x in range(0, len(toTranslate)):
-            translatedDict[toTranslate[x][0]] = translated[x]
-            # add to the cache
-            translationCache.put(toTranslate[x][1], translated[x])
-        translationCache.save()
+    translatedDict = translateDictionary(translationCache, translator, zhDict, newLanguage, 0)
     # save the new dictionaries as JS objects
     saveDictAsJsObject(os.path.join(rootpath, 'js/common/locales/'+newLanguage+'/index.js'), translatedDict)
 
@@ -379,6 +365,7 @@ def main(args):
     translator = Translator(args.key)
     translationCache = TranslationCache('translations.json')
     # do it
+    translatePackageJson(translationCache, translator, nwdir, 'en')
     changeHardcodedLocale(nwdir, 'en')
     changeMonacoLanguage(nwdir, 'en')
     generateLocaleStrings(translationCache, translator, nwdir, 'en')
@@ -389,6 +376,7 @@ def main(args):
     translateFile(translationCache, translator, os.path.join(nwdir,'js/extensions/editor/index.js'), 'en')
     for filepath in listJsFilesWithChinese(os.path.join(nwdir,'js/extensions/editor/assets/api')):
         translateFile(translationCache, translator, filepath, 'en')
+
 
 
 
