@@ -3,7 +3,7 @@ A quick and dirty script to translate the [WeChat Developer Tools](https://mp.we
 
 ![Splash screen](img/splash.png?raw=true "English WeChat Developer Tools")
 ![Main screen](img/main.png?raw=true "English WeChat Developer Tools")
-
+![Code](img/code.png?raw=true "English WeChat Developer Tools")
 
 # Download
 
@@ -13,7 +13,7 @@ Extract the `package.nw` directory and merge it with the one in the WeChat DevTo
 * [1.01.170913](releases/package.nw.1.01.170913.zip)
 
 ## Pre-translated Entire Installation 
-Extract and run the executable.
+Extract the directory. Then run the executable.
 
 * [windows64 - 1.01.170913](releases/win64_1.01.170913.zip)
 
