@@ -361,21 +361,22 @@ def translateFile(translationCache, translator, filepath, newLanguage='en', thre
 
 def main(args):
     nwdir = args.nwdir
+    newLanguage = 'en'
 
     translator = Translator(args.key)
     translationCache = TranslationCache('translations.json')
     # do it
-    translatePackageJson(translationCache, translator, nwdir, 'en')
-    changeHardcodedLocale(nwdir, 'en')
-    changeMonacoLanguage(nwdir, 'en')
-    generateLocaleStrings(translationCache, translator, nwdir, 'en')
+    translatePackageJson(translationCache, translator, nwdir, newLanguage)
+    changeHardcodedLocale(nwdir, newLanguage)
+    changeMonacoLanguage(nwdir, newLanguage)
+    generateLocaleStrings(translationCache, translator, nwdir, newLanguage)
     # fix the hardcoded chinese strings in the js/ directory
     for filepath in listJsFilesWithChinese(os.path.join(nwdir,'js/')):
-        translateFile(translationCache, translator, filepath, 'en')
+        translateFile(translationCache, translator, filepath, newLanguage)
     # # # THe editor extension too
-    translateFile(translationCache, translator, os.path.join(nwdir,'js/extensions/editor/index.js'), 'en')
+    translateFile(translationCache, translator, os.path.join(nwdir,'js/extensions/editor/index.js'), newLanguage)
     for filepath in listJsFilesWithChinese(os.path.join(nwdir,'js/extensions/editor/assets/api')):
-        translateFile(translationCache, translator, filepath, 'en')
+        translateFile(translationCache, translator, filepath, newLanguage)
 
 
 

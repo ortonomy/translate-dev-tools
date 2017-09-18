@@ -7,7 +7,12 @@ A quick and dirty script to translate the [WeChat Developer Tools](https://mp.we
 
 # Download
 
-## package.nw
+## app.nw (MacOS)
+Extract the `app.nw` directory and merge it with the one in the WeChat DevTools installation directory.
+
+* [1.01.170913](releases/app.nw.1.01.170913.zip)
+
+## package.nw (Windows)
 Extract the `package.nw` directory and merge it with the one in the WeChat DevTools installation directory.
 
 * [1.01.170913](releases/package.nw.1.01.170913.zip)
